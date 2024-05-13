@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (d *Discussion) HTTPServer() http.Handler {
+func (d *Discussion) HTTPServe() http.Handler {
 	return http.HandlerFunc(d.Discussion)
 }
 

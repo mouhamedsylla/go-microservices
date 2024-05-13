@@ -1,11 +1,11 @@
-package utils
+package microservices
 
 import (
 	"net/http"
 )
 
 type Controller interface {
-	HTTPServer() http.Handler
+	HTTPServe() http.Handler
 	EndPoint() string
 }
 

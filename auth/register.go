@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (r *Register) HTTPServer() http.Handler {
+func (r *Register) HTTPServe() http.Handler {
     return http.HandlerFunc(r.Register)
 }
 

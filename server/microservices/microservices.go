@@ -2,7 +2,6 @@ package microservices
 
 import (
 	"realtimeForum/server/router"
-	"realtimeForum/utils"
 )
 
 type Service interface {
@@ -31,7 +30,7 @@ func NewAppServices(services ...Service) *AppServices {
 type Microservice struct {
 	ServiceName string
 	Router      *router.Router
-	Controllers []utils.Controller
+	Controllers []Controller
 	Port        string
 }
 
@@ -43,6 +42,6 @@ func NewMicroservice(name, port string) *Microservice {
 	}
 }
 
-func (m *Microservice) AddController(c utils.Controller) {
+func (m *Microservice) AddController(c Controller) {
 	m.Controllers = append(m.Controllers, c)
 }
