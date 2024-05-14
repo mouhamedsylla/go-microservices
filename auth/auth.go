@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 	"realtimeForum/server/microservices"
 )
@@ -12,7 +11,6 @@ type Auth struct {
 
 func (auth *Auth) ConfigureEndpoint() {
 	for _, controller := range auth.Auth.Controllers {
-		fmt.Println("endpoint: ", controller.EndPoint())
 		auth.Auth.Router.Method(http.MethodGet).Handler(controller.EndPoint(), controller.HTTPServe())
 	}
 }

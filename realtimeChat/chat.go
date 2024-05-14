@@ -16,7 +16,7 @@ func (chat *Chat) ConfigureEndpoint() {
 }
 
 func (chat *Chat) InitService() {
-	controllers := []microservices.Controller{&Discussion{}}
+	controllers := []microservices.Controller{&Messenger{}}
 	chat.Chat = microservices.NewMicroservice("Realtime Chat", ":9090")
 
 	for _, c := range controllers {

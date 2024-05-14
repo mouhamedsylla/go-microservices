@@ -4,12 +4,6 @@ import (
 	"realtimeForum/server/router"
 )
 
-type Service interface {
-	GetService() *Microservice
-	InitService()
-	ConfigureEndpoint()
-}
-
 type AppServices struct {
 	Microservices []Service
 }
