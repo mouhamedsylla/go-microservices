@@ -4,54 +4,71 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
+var upgrad = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
-var clients []websocket.Conn
-
-type Messag struct {
+type Messages struct {
 	Content string `json:"content"`
 }
 
+var (
+	clientsMu sync.Mutex
+	Clients   []*websocket.Conn
+)
+
 func (m *Messenger) HTTPServe() http.Handler {
-	return http.HandlerFunc(m.Messenger)
+	return http.HandlerFunc(HandleMessages)
 }
 
 func (m *Messenger) EndPoint() string {
-	return "/discussion"
+	return "/message"
 }
 
-func (m *Messenger) Messenger(w http.ResponseWriter, r *http.Request) {
-	//fmt.Fprintf(w, "welcome to the discussion microservices...")
-	//conn, _ := upgrader.Upgrade(w, r, nil)
-	conn, _ := upgrader.Upgrade(w, r, nil)
+func HandleMessages(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrad.Upgrade(w, r, nil)
+	if err != nil {
+		http.Error(w, "Could not upgrade to WebSocket connection", http.StatusBadRequest)
+		return
+	}
+	defer conn.Close()
 
-	clients = append(clients, *conn)
+	clientsMu.Lock()
+	Clients = append(Clients, conn)
+	clientsMu.Unlock()
+
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			return
+			fmt.Printf("Error reading message: %s\n", err)
+			break
 		}
 
-		var receivedMsg Message
+		var receivedMsg Messages
 		if err := json.Unmarshal(msg, &receivedMsg); err != nil {
-			fmt.Println("Error umarshalling JSON: ", err)
+			fmt.Printf("Error unmarshalling JSON: %s\n", err)
 			continue
 		}
-
-		fmt.Printf("Message sended by %s: %s", conn.RemoteAddr(), receivedMsg.Content)
-
-		for _, client := range clients {
+		
+		clientsMu.Lock()
+		for _, client := range Clients {
 			if err := client.WriteMessage(websocket.TextMessage, []byte(receivedMsg.Content)); err != nil {
-				fmt.Println("Error writting message:", err)
+				fmt.Printf("Error writing message: %s\n", err)
 			}
 		}
+		clientsMu.Unlock()
 	}
 
+	conn.Close()
 }
+
+

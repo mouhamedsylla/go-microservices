@@ -19,9 +19,7 @@ func (chat *Chat) InitService() {
 	controllers := []microservices.Controller{&Messenger{}}
 	chat.Chat = microservices.NewMicroservice("Realtime Chat", ":9090")
 
-	for _, c := range controllers {
-		chat.Chat.AddController(c)
-	}
+	chat.Chat.Controllers = append(chat.Chat.Controllers, controllers...)
 }
 
 func (chat *Chat) GetService() *microservices.Microservice {
